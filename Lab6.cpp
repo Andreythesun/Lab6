@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 struct node {
-	char* value;
+	char value[30];
 	struct node* prev;
 	struct node* next;
 };
@@ -40,11 +40,15 @@ void destroy(struct list* l) {
 	}
 }
 
-struct list* push_back(struct list* l, char* val) {
+struct list* push_back(struct list* l, char val[30]) {
 	struct node* n, * cur;
 	n = (struct node*)malloc(sizeof(struct node) + 1);
 	if (n) {
-		n->value = val;
+		int i = 0;
+		do {
+			n->value[i] = val[i];
+			i++;
+		} while (i <= 30);
 		n->next = NULL;
 		if (l->head == NULL) {
 			n->prev = NULL;
@@ -130,11 +134,11 @@ int main() {
 	//FILE* file = fopen("words.txt", "r");
 	char string[] = "beware our creature has escaped from this prison";
 	//fgets(string, 1000, file);
-	struct list* l1, l2;
-	init(l1); init(&l2);
+	struct list l1, l2;
+	init(&l1); init(&l2);
 	int wordsize = 0, wordcount = 0;
-	char* word;
-	char* tmp = (char*)malloc(10);
+	//char* word;
+	char word[30];
 	int strsize = getSize(string);
 
 	for (int i = 0; i < strsize + 1; i++) {
@@ -143,7 +147,7 @@ int main() {
 		}
 		else {
 			wordcount++;
-			word = (char*)realloc(tmp, (wordsize + 1) * sizeof(char));
+			//word = (char*)realloc(tmp, (wordsize + 1) * sizeof(char));
 			if (word == NULL)
 			{
 				return 1;
@@ -159,12 +163,11 @@ int main() {
 
 			word[wordsize] = 0;
 			for (int i = 0; word[i] != 0; i++) printf("%c", word[i]);
-			l1 = push_back(l1, word);
+			push_back(&l1, word);
 			wordsize = 0;
 			//}
 		}
 	}
-	printf("%d", wordcount);
 	printf("%c \n", get(&l1, 100));
 	print(&l1);
 	destroy(&l1);

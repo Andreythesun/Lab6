@@ -1,6 +1,7 @@
 ﻿//#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct node {
 	char value[30];
@@ -89,14 +90,14 @@ void print(struct list* l) {
 	}
 	cur->value = val;
 }*/
-int get(struct list* l, int i) {
+char* get(struct list* l, int i) {
 	struct node* cur = l->head; int count = 0;
 	if (i < 0 || i >= l->size) return -1;
 	while (count != i) {
 		cur = cur->next;
 		count++;
 	}
-	return cur->value[0];
+	return &cur->value;
 }
 
 /*void insert(struct list* l, struct node* cur, char val) {
@@ -109,21 +110,25 @@ int get(struct list* l, int i) {
 		cur->next = n;
 		l->size++;
 	}
-}
+}*/
 
-void erase(struct list* l, struct node* cur) {
+void erase(struct list* l, int i) {
+	int count = 0;
+	struct node* cur = l->head;
+	while (count != i) {
+		cur = cur->next;
+		count++;
+	}
 	if (cur == l->head) {
 		l->head = cur->next;
 		if (cur->next != NULL) cur->next->prev = NULL;
-		free(cur);
 	}
 	else {
 		cur->prev->next = cur->next;
 		if (cur->next != NULL) cur->next->prev = cur->prev;
-		free(cur);
 	}
 	l->size--;
-}*/
+}
 
 int isLetter(char x)
 {
@@ -132,12 +137,11 @@ int isLetter(char x)
 
 int main() {
 	//FILE* file = fopen("words.txt", "r");
-	char string[] = "beware our creature has escaped from this prison";
+	char string[] = "beware our creature has escaped from this prison our prison";
 	//fgets(string, 1000, file);
 	struct list l1, l2;
 	init(&l1); init(&l2);
 	int wordsize = 0, wordcount = 0;
-	//char* word;
 	char word[30];
 	int strsize = getSize(string);
 
@@ -147,14 +151,13 @@ int main() {
 		}
 		else {
 			wordcount++;
-			//word = (char*)realloc(tmp, (wordsize + 1) * sizeof(char));
 			if (word == NULL)
 			{
 				return 1;
 			}
-			//if (word) {
+			if (word) {
 			int k = 0;
-			printf("%d", wordsize);
+			//printf("%d", wordsize);
 			for (int j = i - wordsize; j < i; j++) {
 
 				word[k] = string[j];
@@ -162,14 +165,40 @@ int main() {
 			}
 
 			word[wordsize] = 0;
-			for (int i = 0; word[i] != 0; i++) printf("%c", word[i]);
+			//for (int i = 0; word[i] != 0; i++) printf("%c", word[i]);
 			push_back(&l1, word);
 			wordsize = 0;
-			//}
+			}
 		}
 	}
-	printf("%c \n", get(&l1, 100));
+	int uniq[100];
+	int k = 0;
+	for (int i = 0; i < wordcount; i++) {
+		int j = 0;
+		int check = 0;
+		char* str1 = get(&l1, i);
+		while (j < wordcount) {
+			if (i == j && j != wordcount - 1)
+				j++;
+			
+			char* str2 = get(&l1, j);
+			if (strcmp(str1, str2) == 0) check++;;
+			j++;
+		}
+		if (check == 0) {
+			push_back(&l2, str1);
+			uniq[k] = i;
+			k++;
+		}
+	}
+	for (int j = 0; j < k; j++) {
+		erase(&l1, (uniq[j]-j));
+	}
+	printf("List of reapeted words:\n");
 	print(&l1);
+	printf("\n");
+	printf("List of unique words:\n");
+	print(&l2);
 	destroy(&l1);
 	destroy(&l2);
 	return 0;
